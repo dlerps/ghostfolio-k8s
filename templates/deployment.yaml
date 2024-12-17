@@ -1,28 +1,37 @@
+{{ $fullName := include "ghostfolio-k8s.fullname" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-ghostfolio
   labels:
-    app: ghostfolio
+    app: {{ $fullName }}
+    {{- include "ghostfolio-k8s.labels" $ | nindent 4 }}
 spec:
   replicas: {{ .Values.ghostfolio.replicaCount }}
   selector:
     matchLabels:
-      app: ghostfolio
+      app: {{ $fullName }}
   template:
     metadata:
       labels:
-        app: ghostfolio
+        app: {{ $fullName }}
+        {{- include "ghostfolio-k8s.labels" . | nindent 8 }}
+        {{- with .Values.ghostfolio.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.ghostfolio.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       containers:
-        - name: ghostfolio
+        - name: {{ $fullName }}
           image: {{ .Values.ghostfolio.repository }}:{{ .Values.ghostfolio.tag }}
           imagePullPolicy: {{ .Values.ghostfolio.pullPolicy }}
+          {{- with .Values.ghostfolio.env }}
           env:
-            {{- range .Values.ghostfolio.env }}
-            - name: {{ .name }}
-              value: {{ .value }}
-            {{- end }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: {{ .Values.ghostfolio.port }}
           readinessProbe:
@@ -43,3 +52,15 @@ spec:
             timeoutSeconds: 5
             successThreshold: 1
             failureThreshold: 3
+      {{- with .Values.ghostfolio.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ghostfolio.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ghostfolio.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

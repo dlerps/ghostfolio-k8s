@@ -23,13 +23,20 @@ ghostfolio:
       value: ghostfolio-redis-master
     - name: REDIS_PASSWORD
       value: ghostfolio
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: {}
 
 postgresql:
+  enabled: false
   auth:
     username: user
     password: ghostfolio
 
 redis:
+  enabled: false
   architecture: standalone
   auth:
     password: ghostfolio
