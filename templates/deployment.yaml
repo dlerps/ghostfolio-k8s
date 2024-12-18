@@ -24,14 +24,25 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      serviceAccountName: {{ include "ghostfolio-k8s.serviceAccountName" . }}
       containers:
         - name: {{ $fullName }}
-          image: {{ .Values.ghostfolio.repository }}:{{ .Values.ghostfolio.tag }}
+          image: {{ .Values.ghostfolio.repository }}:{{ .Values.ghostfolio.tag | default "latest" }}
           imagePullPolicy: {{ .Values.ghostfolio.pullPolicy }}
-          {{- with .Values.ghostfolio.env }}
           env:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{ if .Values.redis.enabled }}
+            - name: REDIS_HOST
+              value: {{ .Release.Name }}-redis-master
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.auth.password }}
+            {{- end }}
+            {{ if .Values.postgresql.enabled }}
+            - name: DATABASE_URL
+              value: postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql/postgres?connect_timeout=300&sslmode=prefer
+            {{- end }}
+            {{- with .Values.ghostfolio.env }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - containerPort: {{ .Values.ghostfolio.port }}
           readinessProbe:

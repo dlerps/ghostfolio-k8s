@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+nameOverride: ""
+fullnameOverride: ""
+
 service:
   type: NodePort
   port: 32333
@@ -12,22 +15,21 @@ ghostfolio:
   replicaCount: 1
   port: 3333
   pullPolicy: IfNotPresent
-  env: 
-    - name: DATABASE_URL
-      value: postgresql://user:ghostfolio@ghostfolio-postgresql/postgres?connect_timeout=300&sslmode=prefer
+  env:
     - name: ACCESS_TOKEN_SALT
       value: ghostfolio
-    - name: JWT_SECRET_KEY 
-      value: ghostfolio
-    - name: REDIS_HOST
-      value: ghostfolio-redis-master
-    - name: REDIS_PASSWORD
+    - name: JWT_SECRET_KEY
       value: ghostfolio
   podAnnotations: {}
   podLabels: {}
   nodeSelector: {}
   affinity: {}
   tolerations: {}
+  serviceAccount:
+    create: true
+    automount: true
+    name: ghostfolio-sa
+    annotations: {}
 
 postgresql:
   enabled: false
