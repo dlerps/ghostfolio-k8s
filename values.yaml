@@ -25,6 +25,7 @@ ghostfolio:
     connectionString: postgresql://user:ghostfolio@ghostfolio-postgresql/postgres?connect_timeout=300&sslmode=prefer
   redis:
     host: ghostfolio-redis-master
+    port: 6379
     password: ghostfolio
   jwtSecretKey: ghostfolio
   accessTokenSalt: ghostfolio

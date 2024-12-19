@@ -41,7 +41,9 @@ spec:
               value: {{ .Values.ghostfolio.postgresql.connectionString }}
             {{- end }}
             - name: REDIS_HOST
-              value: {{ .Release.Name }}-redis-master
+              value: {{ .Values.ghostfolio.redis.host }}
+            - name: REDIS_PORT
+              value: {{ .Values.ghostfolio.redis.port | quote }}
             {{- if and (ne .Values.ghostfolio.existingSecret "") (ne .Values.ghostfolio.secretKeys.redisPassword "") }}
             - name: REDIS_PASSWORD
               valueFrom:
