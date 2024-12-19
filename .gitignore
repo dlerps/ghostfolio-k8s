@@ -1,0 +1,11 @@
+# Subcharts
+Chart.lock
+charts/*
+
+# Local values
+values.*.yaml
+values.*.yml
+
+# Secrets
+templates/secret*.yaml
+templates/secret*.yml
