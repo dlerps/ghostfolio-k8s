@@ -7,5 +7,5 @@ values.*.yaml
 values.*.yml
 
 # Secrets
-templates/secret*.yaml
-templates/secret*.yml
+templates/*secret*.yaml
+templates/*secret*.yml

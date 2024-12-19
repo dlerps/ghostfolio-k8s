@@ -13,19 +13,20 @@ With rising popularity of Kubernetes, this project will provide an alternative w
 ## Deployment Guide 
 
 Create new namespace
-```
+
+```bash
 kubectl create namespace ghostfolio
 ```
 
 Deploy Ghostfolio using Helm
 
-```
-helm install ghostfolio . --namespace ghostfolio
+```bash
+helm upgrade --install ghostfolio . --namespace ghostfolio
 ```
 
 Check if services are ready
 
-```
+```bash
 kubectl get svc --namespace ghostfolio
 ```
 
@@ -35,10 +36,48 @@ Go to your browser and enter the following URL:
 localhost:32333
 ```
 
+### Using Secrets
+
+In order to store sensitive data in Secrets this chart supports the loading of values from an existing Secret resource. In there the values for the following properties can be stored:
+
+- PostgreSql connection-string
+- JWT secret
+- Ghostfilio Salt
+- Redis Password
+
+Create a `secret.yaml` with the base64 encoded values:
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ghostfolio-secret
+type: Opaque
+data:
+  postgresqlConnectionString: cG9zdGdyZXNxbDovL3VzZXI6Z2hvc3Rmb2xpb0BnaG9zdGZvbGlvLXBvc3RncmVzcWwvcG9zdGdyZXM/Y29ubmVjdF90aW1lb3V0PTMwMCZzc2xtb2RlPXByZWZlcg==
+  redisPassword: Z2hvc3Rmb2xpbw==
+  jwtSecretKey: Z2hvc3Rmb2xpbw==
+  accessTokenSalt: Z2hvc3Rmb2xpbw==
+```
+
+Deploy the secrets with `kubectl apply -f secret.yaml -n ghostfolio` and set the values in a `values.deployment.yaml` file:
+
+```yaml
+ghostfolio:
+  existingSecret: ghostfolio-secret
+  secretKeys:
+    postgresqlConnectionString: postgresqlConnectionString
+    redisPassword: redisPassword
+    jwtSecretKey: jwtSecretKey
+    accessTokenSalt: accessTokenSalt
+```
+
+It is possible to use this feature selectively. Leave the `ghostfolio.secretKeys.xxx` values empty to use the clear text values instead.
+
 ## Roadmap
 - [x] Create Manifests file
 - [x] Helm Integration Guide
-- [ ] Implement Secrets 
+- [x] Implement Secrets 
 
 ## Contributing
 
