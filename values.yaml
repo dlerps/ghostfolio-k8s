@@ -15,30 +15,50 @@ ghostfolio:
   replicaCount: 1
   port: 3333
   pullPolicy: IfNotPresent
-  env:
-    - name: ACCESS_TOKEN_SALT
-      value: ghostfolio
-    - name: JWT_SECRET_KEY
-      value: ghostfolio
-  podAnnotations: {}
-  podLabels: {}
-  nodeSelector: {}
-  affinity: {}
-  tolerations: {}
+  env: []
   serviceAccount:
     create: true
     automount: true
     name: ghostfolio-sa
     annotations: {}
+  postgresql:
+    connectionString: postgresql://user:ghostfolio@ghostfolio-postgresql/postgres?connect_timeout=300&sslmode=prefer
+  redis:
+    host: ghostfolio-redis-master
+    password: ghostfolio
+  jwtSecretKey: ghostfolio
+  accessTokenSalt: ghostfolio
+  # override the provided secret values with ones from an existing secret
+  existingSecret: ""
+  secretKeys:
+    postgresqlConnectionString: ""
+    redisPassword: ""
+    jwtSecretKey: ""
+    accessTokenSalt: ""
+  resources: {}
+  podAnnotations: {}
+  podLabels: {}
+  nodeSelector: {}
+  affinity: {}
+  tolerations: {}
+
 
 postgresql:
   enabled: false
   auth:
     username: user
     password: ghostfolio
+    # override the provided passwords with one from an existing secret
+    existingSecret: ""
+    secretKeys:
+      adminPasswordKey: ""
+      userPasswordKey: ""
 
 redis:
   enabled: false
   architecture: standalone
   auth:
     password: ghostfolio
+    # override the provided password with one from an existing secret
+    existingSecret: ""
+    existingSecretPasswordKey: ""

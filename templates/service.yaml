@@ -3,7 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Release.Name }}-ghostfolio
-   labels:
+  labels:
     app: {{ $fullName }}
     {{- include "ghostfolio-k8s.labels" $ | nindent 4 }}
 spec:
@@ -13,7 +13,7 @@ spec:
   ports:
     - port: {{ .Values.ghostfolio.port }}
       targetPort: {{ .Values.ghostfolio.port }}
-      {{ if eq .Values.service.type "NodePort" }}
+      {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.port }}
-      {{ end }}
+      {{- end }}
       protocol: TCP

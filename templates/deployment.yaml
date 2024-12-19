@@ -30,15 +30,47 @@ spec:
           image: {{ .Values.ghostfolio.repository }}:{{ .Values.ghostfolio.tag | default "latest" }}
           imagePullPolicy: {{ .Values.ghostfolio.pullPolicy }}
           env:
-            {{ if .Values.redis.enabled }}
+            {{- if and (ne .Values.ghostfolio.existingSecret "") (ne .Values.ghostfolio.secretKeys.postgresqlConnectionString "") }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghostfolio.existingSecret }}
+                  key: {{ .Values.ghostfolio.secretKeys.postgresqlConnectionString }}
+            {{- else }}
+            - name: DATABASE_URL
+              value: {{ .Values.ghostfolio.postgresql.connectionString }}
+            {{- end }}
             - name: REDIS_HOST
               value: {{ .Release.Name }}-redis-master
+            {{- if and (ne .Values.ghostfolio.existingSecret "") (ne .Values.ghostfolio.secretKeys.redisPassword "") }}
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghostfolio.existingSecret }}
+                  key: {{ .Values.ghostfolio.secretKeys.redisPassword }}
+            {{- else }}
             - name: REDIS_PASSWORD
               value: {{ .Values.redis.auth.password }}
             {{- end }}
-            {{ if .Values.postgresql.enabled }}
-            - name: DATABASE_URL
-              value: postgresql://{{ .Values.postgresql.auth.username }}:{{ .Values.postgresql.auth.password }}@{{ .Release.Name }}-postgresql/postgres?connect_timeout=300&sslmode=prefer
+            {{- if and (ne .Values.ghostfolio.existingSecret "") (ne .Values.ghostfolio.secretKeys.jwtSecretKey "") }}
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghostfolio.existingSecret }}
+                  key: {{ .Values.ghostfolio.secretKeys.jwtSecretKey }}
+            {{- else }}
+            - name: JWT_SECRET_KEY
+              value: {{ .Values.ghostfolio.jwtSecretKey }}
+            {{- end }}
+            {{- if and (ne .Values.ghostfolio.existingSecret "") (ne .Values.ghostfolio.secretKeys.accessTokenSalt "") }}
+            - name: ACCESS_TOKEN_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghostfolio.existingSecret }}
+                  key: {{ .Values.ghostfolio.secretKeys.accessTokenSalt }}
+            {{- else }}
+            - name: ACCESS_TOKEN_SALT
+              value: {{ .Values.ghostfolio.accessTokenSalt }}
             {{- end }}
             {{- with .Values.ghostfolio.env }}
               {{- toYaml . | nindent 12 }}
@@ -63,6 +95,8 @@ spec:
             timeoutSeconds: 5
             successThreshold: 1
             failureThreshold: 3
+          resources:
+            {{- toYaml .Values.ghostfolio.resources | nindent 12 }}
       {{- with .Values.ghostfolio.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
