@@ -11,7 +11,8 @@ spec:
   selector:
     app: {{ $fullName }}
   ports:
-    - port: {{ .Values.ghostfolio.port }}
+    - name: web
+      port: {{ .Values.ghostfolio.port }}
       targetPort: {{ .Values.ghostfolio.port }}
       {{- if eq .Values.service.type "NodePort" }}
       nodePort: {{ .Values.service.port }}

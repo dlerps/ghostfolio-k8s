@@ -41,6 +41,16 @@ ghostfolio:
   nodeSelector: {}
   affinity: {}
   tolerations: {}
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: ghostfolio.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
 
 
 postgresql:
